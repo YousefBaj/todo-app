@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -6,6 +7,8 @@ import 'package:todoapp/Screens/show_alert_dialog.dart';
 import 'package:todoapp/errors/error.dart';
 
 import 'TasksScreen.dart';
+
+final _firestore = Firestore.instance;
 
 class RegistrationScreen extends StatefulWidget {
   static const String id = 'registrationScreen';
@@ -16,6 +19,7 @@ class RegistrationScreen extends StatefulWidget {
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final _auth = FirebaseAuth.instance;
   bool showSpinner = false;
+  String name;
   String email;
   String passWord;
   String confirmPassword;
@@ -74,9 +78,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   ],
                 ),
               ),
-              SizedBox(
-                height: 30,
-              ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 40),
                 child: Column(
@@ -94,7 +95,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       ),
                     ),
                     SizedBox(
-                      height: 40,
+                      height: 20,
                     ),
                     FadeAnimation(
                       1.7,
@@ -113,6 +114,28 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         ),
                         child: Column(
                           children: [
+                            Container(
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.grey[200],
+                                  ),
+                                ),
+                              ),
+                              child: TextField(
+                                keyboardType: TextInputType.emailAddress,
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: "Your Name",
+                                  hintStyle: TextStyle(color: Colors.grey),
+                                ),
+                                cursorColor: Color.fromRGBO(196, 135, 198, 1),
+                                onChanged: (newName) {
+                                  name = newName;
+                                },
+                              ),
+                            ),
                             Container(
                               padding: EdgeInsets.all(10),
                               decoration: BoxDecoration(
@@ -204,6 +227,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                             email: email, password: passWord);
 
                                     if (user != null) {
+                                      _firestore
+                                          .collection(email)
+                                          .document('profile')
+                                          .setData({'name': name});
                                       Navigator.pushNamed(
                                           context, TasksScreen.id);
                                     }

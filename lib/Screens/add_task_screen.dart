@@ -62,7 +62,7 @@ class AddTaskScreen extends StatelessWidget {
               onPressed: () {
                 if (newTaskTitle != null) {
                   _firestore
-                      .collection(userId)
+                      .collection('${userId}/profile/tasks')
                       .document(context.read<TaskData>().taskCount.toString())
                       .setData(
                     {

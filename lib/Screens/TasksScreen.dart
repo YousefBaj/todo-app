@@ -1,7 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:todoapp/Animation/FadeAnimation.dart';
 import 'package:todoapp/Screens/loginScreen.dart';
 import 'package:todoapp/Widgets/Tasks_list.dart';
 import 'package:todoapp/models/task_data.dart';
@@ -9,7 +9,6 @@ import 'package:todoapp/service/data_cache_service.dart';
 
 import 'add_task_screen.dart';
 
-final _firestore = Firestore.instance;
 FirebaseUser loggedInUser;
 
 class TasksScreen extends StatefulWidget {
@@ -23,6 +22,8 @@ class _TasksScreenState extends State<TasksScreen> {
   TaskData dataRepository;
   final DataCacheService data;
   final _auth = FirebaseAuth.instance;
+  String _name = '';
+
   _TasksScreenState({this.data});
 
   @override
@@ -33,8 +34,8 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   void signOut() {
-    print(data.isLogin());
     data.signOut();
+    dataRepository.clearList();
     Navigator.pushReplacement(context,
         MaterialPageRoute(builder: (BuildContext context) => LoginScreen()));
   }
@@ -46,8 +47,11 @@ class _TasksScreenState extends State<TasksScreen> {
         loggedInUser = user;
         AddTaskScreen.userId = loggedInUser.email;
         dataRepository = Provider.of<TaskData>(context, listen: false);
-
-        dataRepository.getCachedTasks(loggedInUser);
+        String name = await dataRepository.getName(loggedInUser) as String;
+        setState(() {
+          _name = name;
+          dataRepository.getCachedTasks(loggedInUser);
+        });
       }
     } catch (e) {
       print(e);
@@ -89,12 +93,15 @@ class _TasksScreenState extends State<TasksScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      "Yousef",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 50,
-                        fontWeight: FontWeight.w700,
+                    FadeAnimation(
+                      1.0,
+                      Text(
+                        _name,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 30,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                     IconButton(
@@ -107,11 +114,14 @@ class _TasksScreenState extends State<TasksScreen> {
                     )
                   ],
                 ),
-                Text(
-                  '${Provider.of<TaskData>(context).taskCount} Tasks',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
+                FadeAnimation(
+                  1.15,
+                  Text(
+                    '${Provider.of<TaskData>(context).taskCount} Tasks',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                    ),
                   ),
                 ),
               ],
@@ -127,7 +137,10 @@ class _TasksScreenState extends State<TasksScreen> {
                   topRight: Radius.circular(20),
                 ),
               ),
-              child: TasksList(),
+              child: FadeAnimation(
+                1.3,
+                TasksList(),
+              ),
             ),
           )
         ],

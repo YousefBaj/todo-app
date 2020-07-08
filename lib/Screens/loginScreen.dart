@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -11,6 +12,7 @@ import 'RegistrationScreen.dart';
 import 'TasksScreen.dart';
 
 enum authProblems { UserNotFound, PasswordNotValid, NetworkError }
+final _firestore = Firestore.instance;
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'loginScreen';
@@ -204,6 +206,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       sharedPreferences: prefs);
 
                                   if (user != null) {
+
                                     data.signIn(true, email);
                                     Navigator.pushNamed(
                                         context, TasksScreen.id);

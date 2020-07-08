@@ -8,7 +8,7 @@ class DataCacheService {
 
   List<Task> getData() {
     List<Task> values = [];
-    print(66);
+
     final count = sharedPreferences.getInt('count');
     if (count != null) {
       for (var x = 0; x < count; x++) {
@@ -36,13 +36,16 @@ class DataCacheService {
   }
 
   Future<void> updateTask(String id, bool isDone) async {
-    print('yousef${id}');
     await sharedPreferences.setBool(id, isDone);
   }
 
   Future<void> signIn(bool isLogin, String email) async {
     await sharedPreferences.setBool('isLogin', true);
-    sharedPreferences.setString('userEmail', email);
+    await sharedPreferences.setString('userEmail', email);
+  }
+
+  Future<void> setName(String name) async {
+    await sharedPreferences.setString('name', name);
   }
 
   Future<void> signOut() async {

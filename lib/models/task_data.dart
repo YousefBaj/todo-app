@@ -20,8 +20,9 @@ class TaskData extends ChangeNotifier {
   UnmodifiableListView<Task> get tasks => UnmodifiableListView(_tasks);
 
   void getCachedTasks(FirebaseUser loggedUser) async {
-    await for (var tasks
-        in _firestore.collection(loggedUser.email).snapshots()) {
+    await for (var tasks in _firestore
+        .collection('${loggedUser.email}/profile/tasks')
+        .snapshots()) {
       for (var task in tasks.documentChanges) {
         var tempTask = task.document;
 
@@ -33,12 +34,32 @@ class TaskData extends ChangeNotifier {
           ),
         );
       }
+
+      notifyListeners();
       return;
     }
 
     dataCacheService.setData(_tasks);
 
     // print(taskCount);
+  }
+
+  Future<String> getName(FirebaseUser loggedUser) async {
+    await for (var tasks
+        in _firestore.collection('${loggedUser.email}').snapshots()) {
+      for (var task in tasks.documentChanges) {
+        var tempTask = task.document;
+        var name = tempTask['name'].toString();
+
+        dataCacheService.setName(name);
+        return name;
+      }
+    }
+  }
+
+  void clearList() {
+    _tasks.clear();
+    notifyListeners();
   }
 
   void addTask(String newTaskTitle) {
@@ -53,7 +74,7 @@ class TaskData extends ChangeNotifier {
     task.toggleDone();
 
     _firestore
-        .collection(dataCacheService.getUserEmail())
+        .collection('${dataCacheService.getUserEmail()}/profile/tasks')
         .document(task.id.toString())
         .setData({'title': task.name, 'isCheck': task.isDone});
     dataCacheService.updateTask(task.id.toString(), task.isDone);
@@ -63,8 +84,8 @@ class TaskData extends ChangeNotifier {
   void deleteTask(Task task) {
     _tasks.remove(task);
     _firestore
-        .collection(dataCacheService.getUserEmail())
-        .document(taskCount.toString())
+        .collection('${dataCacheService.getUserEmail()}/profile/tasks')
+        .document(task.id.toString())
         .delete();
     dataCacheService.setData(_tasks);
     notifyListeners();
