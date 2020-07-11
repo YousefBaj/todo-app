@@ -106,9 +106,9 @@ class _TasksScreenState extends State<TasksScreen> {
                     ),
                     IconButton(
                       icon: Icon(
-                        Icons.power_settings_new,
+                        Icons.exit_to_app,
                         color: Colors.white,
-                        size: 35,
+                        size: 30,
                       ),
                       onPressed: () => signOut(),
                     )
